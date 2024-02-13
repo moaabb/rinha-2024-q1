@@ -2,11 +2,11 @@ package models
 
 import "time"
 
-type TransactionType rune
+type TransactionType string
 
 const (
-	Credit TransactionType = 'c'
-	Debit  TransactionType = 'd'
+	Credit TransactionType = "c"
+	Debit  TransactionType = "d"
 )
 
 type Transaction struct {
@@ -24,4 +24,13 @@ type Party struct {
 	Limit        int64
 	Balance      int64
 	Transactions []Transaction
+}
+
+type ErrorDefinition struct {
+	Message   string
+	ErrorCode string
+}
+
+func (e *ErrorDefinition) Error() string {
+	return e.Message
 }

@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"os"
 
+	_ "github.com/jackc/pgx/v5/stdlib"
+
 	"github.com/moaabb/rinha-de-backend-2024-q1/internal/db"
 	"github.com/moaabb/rinha-de-backend-2024-q1/internal/db/transactiondb"
 	"github.com/moaabb/rinha-de-backend-2024-q1/internal/handlers"
@@ -14,9 +16,9 @@ type H map[string]string
 
 func main() {
 
-	logger := log.New(os.Stdout, "asd", 1)
+	logger := log.New(os.Stdout, "rinha-app", log.Ldate|log.Ltime)
 
-	conn, err := db.Connect("")
+	conn, err := db.Connect("postgres://moab:supersecure@localhost:5432/rinhadb", logger)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -26,7 +28,7 @@ func main() {
 
 	m := http.NewServeMux()
 
-	m.HandleFunc("GET /clinetes/{id}/extrato", rh.GetAccountStatementByPartyId)
+	m.HandleFunc("GET /clientes/{id}/extrato", rh.GetAccountStatementByPartyId)
 	m.HandleFunc("POST /clientes/{id}/transacoes", rh.CreateTransaction)
 
 	srv := http.Server{

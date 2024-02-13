@@ -24,9 +24,9 @@ const CreateTransaction = `
 `
 
 const ChangeAccountBalance = `
-	UPDATE rinha.party SET balance = $1 WHERE party_id = $1
+	UPDATE rinha.party SET balance = $1 WHERE party_id = $2 RETURNING party_id, "limit", balance
 `
 
 const GetAccountBalance = `
-	SELECT party_id, limit, balance FROM rinha.party WHERE party_id = $1
+	SELECT party_id, "limit", balance FROM rinha.party WHERE party_id = $1
 `
