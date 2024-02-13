@@ -1,7 +1,7 @@
 # Build the application from source
-FROM golang:alpine3.18 AS build-stage
+FROM golang:1.22.0-alpine3.19 AS build-stage
 
-WORKDIR .
+WORKDIR /app
 
 ADD . .
 RUN go mod download
