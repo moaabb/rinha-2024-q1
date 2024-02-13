@@ -1,0 +1,31 @@
+version: '3.9'
+services:
+    db:
+        networks:
+            - app
+        image: 'postgres:16.0'
+        ports:
+            - 5432:5432
+        environment:
+            POSTGRES_PASSWORD: supersecure
+            POSTGRES_USER: moab
+            POSTGRES_DB: rinhadb
+        volumes:
+            - 'rinhadb:/var/lib/postgresql/data'
+            - './db.sql:/docker-entrypoint-initdb.d/init.sql'
+
+    pgadmin:
+        networks:
+            - app
+        image: dpage/pgadmin4
+        environment:
+            PGADMIN_DEFAULT_EMAIL: moab@test.com
+            PGADMIN_DEFAULT_PASSWORD: example
+        ports:
+            - 9090:80
+
+networks:
+    app:
+
+volumes:
+    rinhadb:
