@@ -14,16 +14,6 @@ services:
             - 'rinhadb:/var/lib/postgresql/data'
             - './db.sql:/docker-entrypoint-initdb.d/init.sql'
 
-    pgadmin:
-        networks:
-            - app
-        image: dpage/pgadmin4
-        environment:
-            PGADMIN_DEFAULT_EMAIL: moab@test.com
-            PGADMIN_DEFAULT_PASSWORD: example
-        ports:
-            - 9090:80
-
 networks:
     app:
 

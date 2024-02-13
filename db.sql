@@ -10,7 +10,9 @@ CREATE TABLE IF NOT EXISTS rinha.transactions (
     transaction_id BIGSERIAL PRIMARY KEY,
     value BIGINT,
     type VARCHAR(1),
+    description VARCHAR(10),
     party_id BIGINT,
+    created_at timestamp,
     CONSTRAINT party_fk
         FOREIGN KEY(party_id)
             REFERENCES rinha.party(party_id)

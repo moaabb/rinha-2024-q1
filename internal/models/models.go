@@ -1,10 +1,12 @@
 package models
 
+import "time"
+
 type TransactionType rune
 
 const (
 	Credit TransactionType = 'c'
-	Debit                  = 'd'
+	Debit  TransactionType = 'd'
 )
 
 type Transaction struct {
@@ -14,11 +16,12 @@ type Transaction struct {
 	PartyId       int64
 	Party         Party
 	Description   string
-	Date          string
+	CreatedAt     time.Time
 }
 
 type Party struct {
-	PartyId int64
-	Limit   int64
-	Balance int64
+	PartyId      int64
+	Limit        int64
+	Balance      int64
+	Transactions []Transaction
 }
