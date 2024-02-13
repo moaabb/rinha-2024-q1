@@ -88,9 +88,18 @@ func (h *RinhaHandler) CreateTransaction(w http.ResponseWriter, r *http.Request)
 	err = json.NewDecoder(r.Body).Decode(&transaction)
 	if err != nil {
 		data.Response(w, http.StatusUnprocessableEntity, &data.H{
-			"message": "error decoding body",
+			"mensagem": "dto inválido",
 		})
 		h.logger.Println("error: error decoding body", err)
+		return
+	}
+
+	err = transaction.Validate()
+	if err != nil {
+		h.logger.Println("invalid dto err")
+		data.Response(w, http.StatusUnprocessableEntity, &data.H{
+			"mensagem": "dto inválido",
+		})
 		return
 	}
 

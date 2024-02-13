@@ -25,12 +25,3 @@ type Party struct {
 	Balance      int64
 	Transactions []Transaction
 }
-
-type ErrorDefinition struct {
-	Message   string
-	ErrorCode string
-}
-
-func (e *ErrorDefinition) Error() string {
-	return e.Message
-}
