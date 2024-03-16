@@ -30,7 +30,7 @@ services:
         image: moaabb/rinha-go-2024-q1:1.0
         environment:
             - PORT=8080
-            - POOL_SIZE=5
+            - POOL_SIZE=25
             - DB_URL=postgres://moab:supersecure@db:5432/rinhadb
         depends_on:
             - db

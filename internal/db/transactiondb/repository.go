@@ -94,7 +94,7 @@ func (m *TransactionRepository) GetAccountStatementByPartyId(partyId int64) (*mo
 	ctx, cancel := context.WithTimeout(context.Background(), CONTEXT_TIMEOUT)
 	defer cancel()
 	tx, err := m.db.BeginTx(ctx, pgx.TxOptions{
-		IsoLevel:   pgx.ReadUncommitted,
+		IsoLevel:   pgx.ReadCommitted,
 		AccessMode: pgx.ReadOnly,
 	})
 	if err != nil {

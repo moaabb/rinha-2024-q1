@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS rinha.party (
     party_id BIGSERIAL PRIMARY KEY,
     "limit" BIGINT,
     balance BIGINT
+    CHECK (balance > -"limit")
 );
 
 CREATE TABLE IF NOT EXISTS rinha.transactions (
