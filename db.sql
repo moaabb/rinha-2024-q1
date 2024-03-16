@@ -19,8 +19,9 @@ CREATE TABLE IF NOT EXISTS rinha.transactions (
             REFERENCES rinha.party(party_id)
 );
 
-INSERT INTO rinha.party ("limit", balance) VALUES (100000, 0);
-INSERT INTO rinha.party ("limit", balance) VALUES (80000, 0);
-INSERT INTO rinha.party ("limit", balance) VALUES (1000000, 0);
-INSERT INTO rinha.party ("limit", balance) VALUES (10000000, 0);
-INSERT INTO rinha.party ("limit", balance) VALUES (500000, 0);
+INSERT INTO rinha.party ("limit", balance) VALUES
+(100000, 0),
+(80000, 0),
+(1000000, 0),
+(10000000, 0),
+(500000, 0);
