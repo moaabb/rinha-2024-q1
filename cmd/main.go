@@ -3,24 +3,22 @@ package main
 import (
 	"fmt"
 	"log"
-	"net/http"
 	"os"
 
-	"github.com/moaabb/rinha-de-backend-2024-q1/internal/config"
+	"github.com/gofiber/fiber/v2"
+	cfg "github.com/moaabb/rinha-de-backend-2024-q1/internal/config"
 	"github.com/moaabb/rinha-de-backend-2024-q1/internal/db"
 	"github.com/moaabb/rinha-de-backend-2024-q1/internal/db/transactiondb"
 	"github.com/moaabb/rinha-de-backend-2024-q1/internal/handlers"
 )
 
-type H map[string]string
+var logger = log.New(os.Stdout, "rinha-app ", log.Ldate|log.Ltime)
 
 func main() {
 
-	cfg := config.LoadConfig()
+	cfg := cfg.LoadConfig()
 
-	logger := log.New(os.Stdout, "rinha-app", log.Ldate|log.Ltime)
-
-	conn, err := db.Connect(cfg.Dsn, logger)
+	conn, err := db.Connect(cfg.Dsn, logger, cfg.PoolSize)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -28,16 +26,17 @@ func main() {
 	repo := transactiondb.NewTransactionRepository(conn, logger)
 	rh := handlers.NewRinhaHandler(logger, repo)
 
-	m := http.NewServeMux()
+	app := fiber.New()
 
-	m.HandleFunc("GET /clientes/{id}/extrato", rh.GetAccountStatementByPartyId)
-	m.HandleFunc("POST /clientes/{id}/transacoes", rh.CreateTransaction)
+	app.Use(LoggingMiddleware)
+	app.Post("/clientes/:id/transacoes", rh.CreateTransaction)
+	app.Get("/clientes/:id/extrato", rh.GetAccountStatementByPartyId)
 
-	srv := http.Server{
-		Addr:    fmt.Sprintf(":%s", cfg.Port),
-		Handler: m,
-	}
+	logger.Println("Fiber Listening on port", cfg.Port)
+	app.Listen(fmt.Sprintf("0.0.0.0:%s", cfg.Port))
+}
 
-	log.Println("Server Listening on port", cfg.Port)
-	srv.ListenAndServe()
+func LoggingMiddleware(c *fiber.Ctx) error {
+	logger.Println(c.Method(), c.Request().URI())
+	return c.Next()
 }

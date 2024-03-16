@@ -1,12 +1,12 @@
 package handlers
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 	"strconv"
 	"time"
 
+	"github.com/gofiber/fiber/v2"
 	"github.com/moaabb/rinha-de-backend-2024-q1/internal/data"
 	"github.com/moaabb/rinha-de-backend-2024-q1/internal/dto"
 	"github.com/moaabb/rinha-de-backend-2024-q1/internal/models"
@@ -25,23 +25,21 @@ func NewRinhaHandler(l *log.Logger, db repository.TransactionRepository) *RinhaH
 	}
 }
 
-func (h *RinhaHandler) GetAccountStatementByPartyId(w http.ResponseWriter, r *http.Request) {
-	id := r.PathValue("id")
+func (h *RinhaHandler) GetAccountStatementByPartyId(c *fiber.Ctx) error {
+	id := c.Params("id")
 
 	party_id, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
-		data.Response(w, http.StatusUnprocessableEntity, &data.H{
+		h.logger.Println("error: id is not an integer")
+		return c.Status(http.StatusUnprocessableEntity).JSON(&data.H{
 			"mensagem": "id não é um numero inteiro",
 		})
-		h.logger.Println("error: id is not an integer")
-		return
 	}
 
 	party, err := h.db.GetAccountStatementByPartyId(party_id)
 	if err != nil {
-		ErrorHandlerDB(w, err)
 		h.logger.Println("error: error fetching statement", err)
-		return
+		return ErrorHandlerDB(c, err)
 	}
 
 	var latestTransactions []dto.Transaction
@@ -69,45 +67,41 @@ func (h *RinhaHandler) GetAccountStatementByPartyId(w http.ResponseWriter, r *ht
 		LatestTransactions: latestTransactions,
 	}
 
-	data.Response(w, http.StatusOK, response)
+	return c.Status(http.StatusOK).JSON(response)
 }
 
-func (h *RinhaHandler) CreateTransaction(w http.ResponseWriter, r *http.Request) {
-	id := r.PathValue("id")
+func (h *RinhaHandler) CreateTransaction(c *fiber.Ctx) error {
+	id := c.Params("id")
 
 	party_id, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
-		data.Response(w, http.StatusUnprocessableEntity, &data.H{
+		h.logger.Println("error: id is not an integer", err)
+		return c.Status(http.StatusUnprocessableEntity).JSON(&data.H{
 			"mensagem": "id não é um numero inteiro",
 		})
-		h.logger.Println("error: id is not an integer", err)
-		return
 	}
 
 	var transaction dto.TransactionRequest
-	err = json.NewDecoder(r.Body).Decode(&transaction)
+	err = c.BodyParser(&transaction)
 	if err != nil {
-		data.Response(w, http.StatusUnprocessableEntity, &data.H{
+		h.logger.Println("error: error decoding body", err)
+		return c.Status(http.StatusUnprocessableEntity).JSON(&data.H{
 			"mensagem": "dto inválido",
 		})
-		h.logger.Println("error: error decoding body", err)
-		return
 	}
 
 	err = transaction.Validate()
 	if err != nil {
 		h.logger.Println("invalid dto err")
-		data.Response(w, http.StatusUnprocessableEntity, &data.H{
+		return c.Status(http.StatusUnprocessableEntity).JSON(&data.H{
 			"mensagem": "dto inválido",
 		})
-		return
 	}
 
 	party, err := h.db.CreateTransaction(transaction, party_id)
 	if err != nil {
-		ErrorHandlerDB(w, err)
-		h.logger.Println("error: error decoding body", err)
-		return
+		h.logger.Println("error: error creating transaction", err)
+		return ErrorHandlerDB(c, err)
 	}
 
 	response := dto.TransactionResponse{
@@ -115,16 +109,16 @@ func (h *RinhaHandler) CreateTransaction(w http.ResponseWriter, r *http.Request)
 		AccountBalance: party.Balance,
 	}
 
-	data.Response(w, http.StatusOK, response)
+	return c.Status(http.StatusOK).JSON(response)
 }
 
-func ErrorHandlerDB(w http.ResponseWriter, err error) {
+func ErrorHandlerDB(c *fiber.Ctx, err error) error {
 	if err != nil {
 		if err.(*models.ErrorDefinition).ErrorCode == "404" {
-			data.Response(w, http.StatusNotFound, data.H{})
-			return
+			return c.SendStatus(http.StatusNotFound)
 		}
-
-		data.Response(w, http.StatusUnprocessableEntity, data.H{})
+		return c.Status(http.StatusUnprocessableEntity).JSON(data.H{})
 	}
+
+	return nil
 }

@@ -10,7 +10,7 @@ type StatementResponse struct {
 }
 
 type AccountBalance struct {
-	Balance       int64  `json:"saldo"`
+	Balance       int64  `json:"total"`
 	StatementDate string `json:"data_extrato"`
 	Limit         int64  `json:"limite"`
 }
